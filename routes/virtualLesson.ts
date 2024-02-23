@@ -3,11 +3,6 @@ import express, { Request, Response, Router}  from 'express'
 import * as Joi from 'joi'
 const router:Router = express()
 
-mongoose.connect('mongodb://localhost/virtualDars').then(()=>{
-    console.log('MongoDb ga ulanish hosil qildim..');
-}).catch((err)=>{
-    console.log('MongoDb ga ulanishda xatolik sodir boldi... ' + err);
-})
 
 interface iCategories {
     name: string
@@ -51,22 +46,24 @@ router.get('/', async (req:Request, res:Response) => {
     res.send(categoriyalar)
 })
 
+// get ById
+router.get('/:id', async(req:Request, res:Response)=>{
+    const categorie = await Categorie.findById(req.params.id)
+    if (!categorie) return res.status(404).send("Mavjud bo'lmagan id...")
+    res.send(categorie)
+})
+
 // add new categorie
 router.post('/', async (req:Request, res:Response)=>{
     const result = validateCategories(req.body)
-    console.log(result);
     if(result.error){
-        return res.send(result.error.details[0].message)
+        return res.status(400).send(result.error.details[0].message)
     }
 
     const categ = new Categorie({
         name: req.body.name
     })
-    // const categorie = {
-    //     id: categories.length+1,
-    //     name: req.body.name
-    // }
-    const saveCateg = await categ.save()
+        const saveCateg = await categ.save()
     res.status(201).send(saveCateg)
 })
 
@@ -89,7 +86,7 @@ router.put('/:id', async(req:Request, res:Response)=>{
 
 // // delete category
 router.delete('/:id',async(req:Request, res:Response)=>{
-    const categorie = await Categorie.findById(req.params.id)
+    const categorie = await Categorie.findByIdAndDelete(req.params.id)
     if(!categorie)return res.status(404).send('Mavjud bomagan id...')
     const deleteCategorie = await categorie.deleteOne()
     res.send(deleteCategorie)

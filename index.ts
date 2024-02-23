@@ -189,17 +189,19 @@
 import express, {Express, Request, Response} from 'express'
 import mongoose from 'mongoose'
 
+
+const categories = require('./routes/virtualLesson')
+const customers = require('./routes/customers')
+const app:Express = express()
+
 mongoose.connect('mongodb://localhost/virtualDars').then(()=>{
     console.log('MongoDb ga ulanish hosil qildim..');
 }).catch((err)=>{
     console.log('MongoDb ga ulanishda xatolik sodir boldi... ' + err);
 })
-
-const categories = require('./routes/virtualLesson')
-const app:Express = express()
-
 app.use(express.json())
 app.use('/api/categories', categories)
+app.use('/api/customers', customers)
 
 
 
