@@ -189,6 +189,12 @@
 import express, {Express, Request, Response} from 'express'
 import mongoose from 'mongoose'
 
+mongoose.connect('mongodb://localhost/virtualDars').then(()=>{
+    console.log('MongoDb ga ulanish hosil qildim..');
+}).catch((err)=>{
+    console.log('MongoDb ga ulanishda xatolik sodir boldi... ' + err);
+})
+
 const categories = require('./routes/virtualLesson')
 const app:Express = express()
 
