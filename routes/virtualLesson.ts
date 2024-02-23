@@ -1,28 +1,39 @@
-import express, {Express, Request, Response, Router}  from 'express'
+import mongoose, { ObjectId } from 'mongoose'
+import express, { Request, Response, Router}  from 'express'
 import * as Joi from 'joi'
 const router:Router = express()
 
+mongoose.connect('mongodb://localhost/virtualDars').then(()=>{
+    console.log('MongoDb ga ulanish hosil qildim..');
+}).catch((err)=>{
+    console.log('MongoDb ga ulanishda xatolik sodir boldi... ' + err);
+})
+
 interface iCategories {
-    id: number, 
     name: string
 }
 
-const categories:iCategories[] = [
-    {
-        id: 1,
-        name: 'Dasturlash',
-    },
-    {
-        id: 2,
-        name: "DevOps"
-    },
-    {
-        id: 3,
-        name: "QA Testing"
+// const categories:iCategories[] = [
+//     {
+//         name: 'Dasturlash',
+//     },
+//     {
+//         name: "DevOps"
+//     },
+//     {
+//         name: "QA Testing"
 
-    }
+//     }
 
-]
+// ]
+
+const categorieSchema =new mongoose.Schema<iCategories>({
+    name:{type:String, required:true}
+    
+})
+
+const Categorie = mongoose.model('Categorie', categorieSchema)
+
 
 function validateCategories(categorie:string){
     const categorieSchema = Joi.object({
@@ -35,47 +46,52 @@ function validateCategories(categorie:string){
 // })
 
 // get all categories
-router.get('/', (req:Request, res:Response) => {
-    res.send(categories)
+router.get('/', async (req:Request, res:Response) => {
+    const categoriyalar = await Categorie.find()
+    res.send(categoriyalar)
 })
 
 // add new categorie
-router.post('/', (req:Request, res:Response)=>{
-    // console.log(req);
+router.post('/', async (req:Request, res:Response)=>{
     const result = validateCategories(req.body)
     console.log(result);
     if(result.error){
         return res.send(result.error.details[0].message)
     }
-    const categorie = {
-        id: categories.length+1,
+
+    const categ = new Categorie({
         name: req.body.name
-    }
-    categories.push(categorie)
-    res.status(201).send(categorie)
+    })
+    // const categorie = {
+    //     id: categories.length+1,
+    //     name: req.body.name
+    // }
+    const saveCateg = await categ.save()
+    res.status(201).send(saveCateg)
 })
 
-
-router.put('/:id', (req:Request, res:Response)=>{
-    const categorie = categories.find(ct=>ct.id===parseInt(req.params.id))
+// update category
+router.put('/:id', async(req:Request, res:Response)=>{
+    const categorie = await Categorie.findById(req.params.id)
     if(!categorie)return res.status(404).send('Mavjud bomagan id...')
 
     const {error} = validateCategories(req.body)
     if(error){
         return res.status(400).send(error.details[0].message)
     }
-    categorie.name=req.body.name
-    res.send(categorie)
+    categorie.set({
+        name: req.body.name
+    })
+    const saveCategorie = await categorie.save()
+    res.send(saveCategorie)
 
 })
 
-// delete category
-router.delete('/:id',(req:Request, res:Response)=>{
-    const categorie = categories.find(ct=>ct.id===parseInt(req.params.id))
+// // delete category
+router.delete('/:id',async(req:Request, res:Response)=>{
+    const categorie = await Categorie.findById(req.params.id)
     if(!categorie)return res.status(404).send('Mavjud bomagan id...')
-
-    const index = categories.indexOf(categorie)
-    categories.splice(index,1)
-    res.send(categorie)
+    const deleteCategorie = await categorie.deleteOne()
+    res.send(deleteCategorie)
 })
 module.exports =router

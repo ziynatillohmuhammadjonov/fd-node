@@ -49,7 +49,7 @@
 // })
 
 
-import mongoose from 'mongoose'
+// import mongoose from 'mongoose'
 
 // mongoose.connect('mongodb://localhost/usersTest').then(()=>{
 //     console.log("MondoDb ga ulanish hosil qilmdim..");
@@ -87,99 +87,117 @@ import mongoose from 'mongoose'
 // }
 // // getUser()
 
-mongoose.connect('mongodb://localhost/test').then(() => {
-    console.log('MongoDBga ulanish hosil qildim...');
-}).catch((err) => {
-    console.log("MongoDbga ulanishda xatolk bo'ldi " + err);
+// mongoose.connect('mongodb://localhost/test').then(() => {
+//     console.log('MongoDBga ulanish hosil qildim...');
+// }).catch((err) => {
+//     console.log("MongoDbga ulanishda xatolk bo'ldi " + err);
+// })
+
+// const bookSchema = new mongoose.Schema({
+//     name: String,
+//     author: String,
+//     tags: [String],
+//     date: { type: Date, default: Date.now },//schemani default qiymatini qo'yish
+//     isPublished: Boolean
+// })
+// const Book = mongoose.model("Book", bookSchema)
+
+
+// async function createBook() {
+//     const book = new Book({
+//         name: "NodeJs to'liq qo'llanma",
+//         author: 'Farhod Dadajonov',
+//         tags: ['js', 'dasturlash', 'node'],
+//         isPublished: false
+//     })
+//     const saveBook = await book.save()
+//     console.log(saveBook);
+// }
+// // createBook()
+
+// async function getBook() {
+//     const books = await Book.find({
+//         author: 'Farhod Dadajonov'
+//     }).limit(1).sort({ name: 1 }).select({ name: 1, tags: 1 });
+//     console.log(books);
+
+// }
+// // getBook()
+
+// // Paginatsiyani amalga oshirish uchun uni .limit va .skip metodlari orqali amalga 
+// async function getBookWithPagination() {
+//     const pageNumber = 3;
+//     const pageSize = 10
+//     // /api/books?pageNumber=3&pageSize=10
+//     const books = await Book.find({
+//         author: 'Farhod Dadajonov'
+//     })
+//     .skip((pageNumber-1)*pageSize)
+//     .limit(pageSize)
+//     .sort({ name: 1 })
+//     .select({ name: 1, tags: 1 });
+//     console.log(books);
+
+// }
+
+// // // getBookWithPagination()
+
+// // Bu usul asosan malum bir xos qiymat bo'yicha yangilanish uchun ishaltiladi
+// async function updateBook1(id:string) {
+//     const book = await Book.findById(id)
+//     if (!book)return
+// // 1-usul
+//     // book.isPublished=true
+//     // book.author = 'Ziynatillo'
+
+// //2-usul
+//     book.set({
+//         author: 'Ziyntilloh',
+//         isPublished: false
+//     })
+//     const saveBook = await book.save()
+//     console.log(saveBook);
+    
+// }
+// // Bu usul bilan esa ummumiy xossaga ega bo'lganarini ushalb uni almashtirish mumkin.
+// async function updateBook2(id:string) {
+//     const result = await Book.updateOne({_id:id},{
+//         $set:{
+//             author: 'Ziynatilloh',
+//             isPublished: true
+//         }
+//     })
+//     console.log(result);
+// }
+// // updateBook2('65d71cc9781ef8c67b00c3e0')
+
+// async function deleteBook1(id:string) {
+//     const result =await Book.deleteOne({_id:id})
+//     console.log(result);
+    
+// }
+// // Agar bizga o'chirilgan hujjatni o'zini ham qaytarish kerak bo'lsa 
+// async function deleteBook2(id:string) {
+//     const result =await Book.findByIdAndDelete({_id:id})
+//     console.log(result);
+    
+// }
+// deleteBook2('65d71d546902e2c79aeecae8')
+
+
+
+import express, {Express, Request, Response} from 'express'
+import mongoose from 'mongoose'
+
+const categories = require('./routes/virtualLesson')
+const app:Express = express()
+
+app.use(express.json())
+app.use('/api/categories', categories)
+
+
+
+app.listen(5000,()=>{
+    console.log('5000 chi portni eshitishni boshladim...');
+    
 })
-
-const bookSchema = new mongoose.Schema({
-    name: String,
-    author: String,
-    tags: [String],
-    date: { type: Date, default: Date.now },//schemani default qiymatini qo'yish
-    isPublished: Boolean
-})
-const Book = mongoose.model("Book", bookSchema)
-
-
-async function createBook() {
-    const book = new Book({
-        name: "NodeJs to'liq qo'llanma",
-        author: 'Farhod Dadajonov',
-        tags: ['js', 'dasturlash', 'node'],
-        isPublished: false
-    })
-    const saveBook = await book.save()
-    console.log(saveBook);
-}
-// createBook()
-
-async function getBook() {
-    const books = await Book.find({
-        author: 'Farhod Dadajonov'
-    }).limit(1).sort({ name: 1 }).select({ name: 1, tags: 1 });
-    console.log(books);
-
-}
-// getBook()
-
-// Paginatsiyani amalga oshirish uchun uni .limit va .skip metodlari orqali amalga 
-async function getBookWithPagination() {
-    const pageNumber = 3;
-    const pageSize = 10
-    // /api/books?pageNumber=3&pageSize=10
-    const books = await Book.find({
-        author: 'Farhod Dadajonov'
-    })
-    .skip((pageNumber-1)*pageSize)
-    .limit(pageSize)
-    .sort({ name: 1 })
-    .select({ name: 1, tags: 1 });
-    console.log(books);
-
-}
-
-// // getBookWithPagination()
-
-// Bu usul asosan malum bir xos qiymat bo'yicha yangilanish uchun ishaltiladi
-async function updateBook1(id:string) {
-    const book = await Book.findById(id)
-    if (!book)return
-// 1-usul
-    // book.isPublished=true
-    // book.author = 'Ziynatillo'
-
-//2-usul
-    book.set({
-        author: 'Ziyntilloh',
-        isPublished: false
-    })
-    const saveBook = await book.save()
-    console.log(saveBook);
-    
-}
-// Bu usul bilan esa ummumiy xossaga ega bo'lganarini ushalb uni almashtirish mumkin.
-async function updateBook2(id:string) {
-    const result = await Book.updateOne({_id:id},{
-        $set:{
-            author: 'Ziynatilloh',
-            isPublished: true
-        }
-    })
-    console.log(result);
-}
-// updateBook2('65d71cc9781ef8c67b00c3e0')
-
-async function deleteBook1(id:string) {
-    const result =await Book.deleteOne({_id:id})
-    console.log(result);
-    
-}
-// Agar bizga o'chirilgan hujjatni o'zini ham qaytarish kerak bo'lsa 
-async function deleteBook2(id:string) {
-    const result =await Book.findByIdAndDelete({_id:id})
-    console.log(result);
-    
-}
-deleteBook2('65d71d546902e2c79aeecae8')
