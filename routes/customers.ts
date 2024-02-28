@@ -1,68 +1,69 @@
-import express, { Request, Response, Router } from 'express'
+import express, { Router, Response, Request } from 'express'
 import mongoose from 'mongoose'
-import * as Joi from 'joi'
+const { validate, Customer } = require('../models/customer')
 const router: Router = express.Router()
-const {validate, Customer} = require('../models/customers')
 
-
-// get All Customer 
 router.get('/', async (req: Request, res: Response) => {
-    const customers = await Customer.find().sort({ name: 1 })
+    const customers = await Customer.find().sort('name')
     res.send(customers)
 })
 
-// get Customer by id
-router.get('/:id', async (req: Request, res: Response) => {
-    const customer = await Customer.findById(req.params.id)
-    if (!customer) return res.status(404).send("Mavjub bo'lmagan id....")
-    res.send(customer)
-})
-
-// post Customer
+// add customers
 router.post('/', async (req: Request, res: Response) => {
     const { error } = validate(req.body)
-    if (error) {
-        return res.status(400).send(error.details[0].message)
-    }
-    const user = await Customer.create(req.body)
-    const saveUser = await user.save()
-    res.send(saveUser)
+    if (error) return res.status(400).send(error.details[0].message)
+    const customer = new Customer({
+        name: req.body.name,
+        isVip: req.body.isVip,
+        phone: req.body.phone,
+        bonusPoints: req.body.bonusPoints
+    })
+    const saveCustomer = await customer.save()
+    res.send(saveCustomer)
 })
+// get ById 
+router.get('/:id', async (req: Request, res: Response) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Id noto'g'ri formatda... :(")
+        const customer = await Customer.findById(req.params.id)
+        if (!customer) return res.status(400).send("Mavjud bo'lmagan id. :(")
+        res.send(customer)
+    } catch (err) {
+        return console.log(err);
 
+    }
+})
 // update Customer
 router.put('/:id', async (req: Request, res: Response) => {
-    const {error} = validate(req.body)
-    if(error){
-        return res.status(400).send(error.details[0].message)
-    }
     try {
-        const customer = await Customer.updateOne({ _id: req.params.id }, {
-            $set: {
-                name: req.body.name,
-                isVip: req.body.isVip,
-                phone: req.body.phone
-            }
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Id noto'g'ri formatda... :(")
+        const {error} = validate(req.body)
+    if(error) return res.status(400).send(error.details[0].message)
+        const customer = await Customer.findByIdAndUpdate({ _id: req.params.id }, {
+            name: req.body.name,
+            isVip: req.body.isVip,
+            phone: req.body.phone,
+            bonusPoints: req.body.bonusPoints
         })
+        if (!customer) return res.status(400).send("Mavjud bo'lmagan id. :(")
 
         res.send(customer)
-
     } catch (err) {
-        console.log(err);
-        return 
+        return console.log(err);
+
     }
-
 })
+// delete customer
+router.delete('/:id', async(req:Request, res:Response)=>{
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Id noto'g'ri formatda... :(")
+           const customer = await Customer.deleteOne({ _id: req.params.id })
+        if (!customer) return res.status(400).send("Mavjud bo'lmagan id. :(")
 
-// delete Customer
-
-router.delete('/:id',async(req:Request, res:Response)=>{
-    try{
-        const customer = await Customer.findByIdAndDelete(req.params.id)
         res.send(customer)
+    } catch (err) {
+        return console.log(err);
 
-    }catch(err){
-        console.log(err);
-        return 
     }
 })
 module.exports = router
