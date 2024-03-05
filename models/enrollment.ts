@@ -1,25 +1,25 @@
-import express,{ Express, Router, Response } from "express";
+import express, { Express, Router, Response } from "express";
 import * as Joi from 'joi'
 import mongoose from "mongoose";
-const {courseSchema} = require('./course')
+const { courseSchema } = require('./course')
 
-interface iEnrollment{
-    customerId:string,
-    courseId:string
+interface iEnrollment {
+    customerId: string,
+    courseId: string
 }
 const enrollmentSchema = new mongoose.Schema({
-    customer:{
-        type:new mongoose.Schema({
-            name:{
-                type:String,
-                required:true,
-                minlength:3,
-                maxlength:50
+    customer: {
+        type: new mongoose.Schema({
+            name: {
+                type: String,
+                required: true,
+                minlength: 3,
+                maxlength: 50
             }
         }),
-        required:true
+        required: true
     },
-    course:{
+    course: {
         type: new mongoose.Schema({
             title: {
                 type: String,
@@ -27,28 +27,29 @@ const enrollmentSchema = new mongoose.Schema({
                 trim: true,
                 minlength: 5,
                 maxlength: 255
-              }
+            }
         }),
         required: true
     },
-    dateStart:{
+    dateStart: {
         type: Date,
         required: true,
         default: Date.now
     },
-    courseFee:{
+    courseFee: {
         type: Number,
-        min:0
+        min: 0
     }
-}, {versionKey: false})
+}, { versionKey: false })
+
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema)
-function validateEnrollments(body:iEnrollment){
+function validateEnrollments(body: iEnrollment) {
     const schema = Joi.object({
-        customerId:Joi.string().required(),
-        courseId:Joi.string().required(),
+        customerId: Joi.string().required(),
+        courseId: Joi.string().required(),
 
     })
-    return  schema.validate(body)
+    return schema.validate(body)
 }
 
 exports.validate = validateEnrollments

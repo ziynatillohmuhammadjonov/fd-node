@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const { Enrollment, validate } = require('../models/enrollment')
 const { Customer } = require('../models/customer')
 const { Course } = require('../models/course')
+const {Journal}=require('../models/jounal')
 
 const router: Router = express.Router()
 
@@ -14,6 +15,8 @@ router.get('/', async (req: Request, res: Response) => {
 
 // add new enrollments
 router.post('/', async (req: Request, res: Response) => {
+    const session = await mongoose.startSession()
+    session.startTransaction
     try {
         const { error } = validate(req.body)
         if (error) return res.status(400).send(error.details[0].message)
@@ -38,15 +41,32 @@ router.post('/', async (req: Request, res: Response) => {
             },
             courseFee: req.body.courseFee
         })
+
         // bu jarayonni tranzaksiyada qilish kerak.
-        if (customers.isVip) return enrollment.courseFee = courses.fee - (0.2 * courses.fee) //mijozlarga 20 % chegirma
+        if (customers.isVip) { 
+            if(customers.bonusPoints<=3){
+                const journal = new Journal({
+                    customerName: customers.name,
+                    courseTitle: courses.title
+                })
+                journal.save()
+                return enrollment.courseFee = courses.fee - (0.2 * courses.fee) 
+
+            }else{
+                throw new Error("Mijoz limitidan foydalanib bo'lgan")
+            }
+        } //mijozlarga 20 % chegirma
 
         const saveEnrollment = await enrollment.save()
         customers.bonusPoints++
         customers.save()
         res.send(saveEnrollment)
     } catch (err) {
-        return console.log(err);
+        await session.abortTransaction()
+        console.log(err);
+        throw err
+    } finally {
+        session.endSession()
     }
 })
 

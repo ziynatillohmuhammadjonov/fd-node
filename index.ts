@@ -7,6 +7,7 @@ const categories = require('./routes/categories')
 const customers = require('./routes/customers')
 const courses = require('./routes/courses')
 const enrollments = require('./routes/enrollmets')
+const users = require('./routes/users')
 const app:Express = express()
 
 
@@ -21,6 +22,8 @@ app.use('/api/categories', categories)
 app.use('/api/customers', customers)
 app.use('/api/courses', courses)
 app.use('/api/enrollments', enrollments)
+app.use('/api/users', users)
+
 
 app.listen(5000,()=>{
     console.log('5000 chi portni eshitishni boshladim...');
