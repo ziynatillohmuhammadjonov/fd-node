@@ -11,7 +11,7 @@ router.post('/', async(req:Request, res:Response)=>{
         if(error) return res.status(400).send(error.details[0].message)
         const emailUser = await User.findOne({ email: req.body.email })
         if (emailUser) return res.status(400).send("Mavjud bo'lgan foydalanuvchi.")
-        const user = new User(_.pick(req.body, ['name', 'email', 'password','isAdmin']))
+        const user = new User(_.pick(req.body, ['name', 'email', 'password',"isAdmin"]))
         const salt =await bcrypt.genSalt()
         const hash = await bcrypt.hashSync(user.password, salt)
         user.password = hash

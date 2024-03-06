@@ -11,7 +11,7 @@ const categorySchema = new mongoose.Schema<iCategory>({
         minlength: 3,
         maxlength: 50
     }
-})
+},{versionKey: false})
 const Category = mongoose.model('Category', categorySchema)
 
 function validate (body:string){
