@@ -1,6 +1,12 @@
+// package
 import mongoose, { model } from "mongoose";
 import express, { Request, Response, Router } from "express";
+
+// models
 const { validate, Category } = require('../models/category')
+
+// middleware
+import  auth  from '../middleware/auth';
 
 const router: Router = express.Router()
 // get all categories
@@ -10,14 +16,19 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // add new categories 
-router.post('/', async (req: Request, res: Response) => {
-    const { error } = validate(req.body)
-    if (error) return res.status(400).send(error.details[0].message);
-    const category = new Category({
-        name: req.body.name
-    })
-    const saveCategory = await category.save()
-    res.send(saveCategory)
+router.post('/',auth, async (req: Request, res: Response) => {
+    try {
+        const { error } = validate(req.body)
+        if (error) return res.status(400).send(error.details[0].message);
+        const category = new Category({
+            name: req.body.name
+        })
+        const saveCategory = await category.save()
+        res.send(saveCategory)
+        
+    } catch (error) {
+        return console.log(error)
+    }
 })
 
 // get category byId
@@ -35,7 +46,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 })
 
 // update category 
-router.put('/:id', async(req:Request, res:Response)=>{
+router.put('/:id',auth, async(req:Request, res:Response)=>{
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             res.status(404).send("Id formati to'g'ri emas :(..")
@@ -51,7 +62,7 @@ router.put('/:id', async(req:Request, res:Response)=>{
 })
 
 // delete category
-router.delete('/:id', async(req:Request, res:Response)=>{
+router.delete('/:id',auth, async(req:Request, res:Response)=>{
     try{
         if(!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Noto'gri formatdagi id :(")
         const category = await Category.deleteOne({_id:req.params.id})

@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import jwt from 'jsonwebtoken'
 import * as Joi from 'joi'
+import config from 'config'
 
 interface iUser{
     name:string,
@@ -25,9 +27,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 5,
         maxlength: 1024
-    }
+    },
 
 },{versionKey: false})
+userSchema.methods.generateAuthToken = function () {
+    const token = jwt.sign({ _id: this._id }, config.get('jwtPrivateKey'));
+    return token;
+  }
 const User = mongoose.model("User",userSchema)
 function validateUser (body:iUser){
     const schema = Joi.object({
