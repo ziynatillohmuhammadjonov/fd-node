@@ -7,8 +7,7 @@ export default function auth(req:Request, res:Response, next:NextFunction) {
     if (!token) return res.status(401).send('Token bo\'lmaganligi sababli murojaat rad etildi');
     try {
         const decoded = jwt.verify(token, config.get('jwtPrivateKey')) as string ;
-        // console.log(req.user)
-        (req as any).user = decoded;
+        (req as any).userId = decoded;
         next();
     }
     catch (ex) {

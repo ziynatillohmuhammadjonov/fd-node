@@ -18,7 +18,7 @@ router.post('/', async (req: Request, res: Response) => {
         if (!isVlidPassword) return res.status(400).send("Email yoki parol noto'g'ri")
 
         const token = user.generateAuthToken();
-        res.header('x-auth-token', token).send(user);
+        res.header('x-auth-token', token).send(true);
     } catch (error) {
         return console.log(error)
     }
