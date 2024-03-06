@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from "express";
 import mongoose from "mongoose";
+import auth from "../middleware/auth";
 const { Enrollment, validate } = require('../models/enrollment')
 const { Customer } = require('../models/customer')
 const { Course } = require('../models/course')
@@ -14,7 +15,7 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // add new enrollments
-router.post('/', async (req: Request, res: Response) => {
+router.post('/',auth, async (req: Request, res: Response) => {
     const session = await mongoose.startSession()
     session.startTransaction
     try {

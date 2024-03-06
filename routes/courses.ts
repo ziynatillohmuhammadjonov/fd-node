@@ -1,5 +1,6 @@
 import mongoose from 'mongoose'
 import express, { Router, Request, Response } from 'express'
+import auth from '../middleware/auth'
 const { Course, validate, iCourse } = require('../models/course')
 const { Category } = require('../models/category')
 const router: Router = express.Router()
@@ -11,7 +12,7 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // add courses
-router.post('/', async (req: Request, res: Response) => {
+router.post('/',auth, async (req: Request, res: Response) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
 
@@ -47,7 +48,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 })
 
 // update course
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id',auth, async (req: Request, res: Response) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id) || !mongoose.Types.ObjectId.isValid(req.body.categoryId)) return res.status(400).send('Notogri formatdagi id. :(')
         const category = await Category.findById(req.body.categoryId)
@@ -74,7 +75,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 })
 
 // delete  course
-router.delete('/:id', async(req:Request, res:Response)=>{
+router.delete('/:id',auth, async(req:Request, res:Response)=>{
     try{
         if(!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(404).send("Berilgan id topilmadi :(")
         const deleteCourse = await Course.deleteOne({_id:req.params.id})

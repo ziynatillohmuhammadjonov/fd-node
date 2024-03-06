@@ -1,5 +1,5 @@
 // package
-import mongoose, { model } from "mongoose";
+import mongoose from "mongoose";
 import express, { Request, Response, Router } from "express";
 
 // models
@@ -7,6 +7,7 @@ const { validate, Category } = require('../models/category')
 
 // middleware
 import  auth  from '../middleware/auth';
+import admin from "../middleware/admin";
 
 const router: Router = express.Router()
 // get all categories
@@ -62,7 +63,7 @@ router.put('/:id',auth, async(req:Request, res:Response)=>{
 })
 
 // delete category
-router.delete('/:id',auth, async(req:Request, res:Response)=>{
+router.delete('/:id', [auth, admin] , async(req:Request, res:Response)=>{
     try{
         if(!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Noto'gri formatdagi id :(")
         const category = await Category.deleteOne({_id:req.params.id})

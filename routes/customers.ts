@@ -1,5 +1,6 @@
 import express, { Router, Response, Request } from 'express'
 import mongoose from 'mongoose'
+import auth from '../middleware/auth'
 const { validate, Customer } = require('../models/customer')
 const router: Router = express.Router()
 
@@ -9,7 +10,7 @@ router.get('/', async (req: Request, res: Response) => {
 })
 
 // add customers
-router.post('/', async (req: Request, res: Response) => {
+router.post('/',auth, async (req: Request, res: Response) => {
     const { error } = validate(req.body)
     if (error) return res.status(400).send(error.details[0].message)
     const customer = new Customer({
@@ -34,7 +35,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 })
 // update Customer
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id',auth, async (req: Request, res: Response) => {
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Id noto'g'ri formatda... :(")
         const {error} = validate(req.body)
@@ -54,7 +55,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 })
 // delete customer
-router.delete('/:id', async(req:Request, res:Response)=>{
+router.delete('/:id',auth, async(req:Request, res:Response)=>{
     try {
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).send("Id noto'g'ri formatda... :(")
            const customer = await Customer.deleteOne({ _id: req.params.id })
